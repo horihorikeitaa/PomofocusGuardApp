@@ -1,0 +1,23 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# PomofocusGuardApp プロジェクト概要
+
+このアプリケーションはReact Nativeを使用したポモドーロテクニック支援アプリです。詳細な要件は[requirements.md](mdc:docs/requirements.md)を参照してください。
+
+## プロジェクトの目的
+- ポモドーロテクニックを使った時間管理をサポート
+- 集中時間と休憩時間を適切に管理
+- 特定アプリ・サイトへのアクセス制限
+- センサーを用いた姿勢検知
+
+## 技術スタック
+- React Native
+- TypeScript
+- Recoil (状態管理)
+- React Query (データフェッチング)
+
+## アーキテクチャ
+「機能ベースのクリーンアーキテクチャ + Reactiveパターン」を採用しています。詳細は[architecture.md](mdc:docs/architecture.md)を参照してください。
