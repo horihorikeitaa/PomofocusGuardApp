@@ -1,0 +1,186 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Git運用ルール
+
+## コミットの基本ルール
+
+### コミットメッセージ形式
+```
+[タイプ] 簡潔な変更の説明（50文字以内）
+
+- 変更点の詳細（必要な場合）
+```
+
+### タイプ一覧
+- `[feat]`: 新機能の追加
+- `[fix]`: バグ修正
+- `[docs]`: ドキュメントの変更のみ
+- `[style]`: コードの意味に影響しない変更（空白、フォーマット等）
+- `[refactor]`: バグ修正や機能追加を含まないコード変更
+- `[test]`: テストの追加・修正
+- `[chore]`: ビルドプロセスやツールの変更
+
+### 良いコミットの例
+```
+[feat] タイマー画面の実装
+
+- カウントダウン表示コンポーネントの追加
+- 一時停止/再開ボタンの実装
+- タイマー完了時の通知機能の追加
+```
+
+## ブランチ戦略
+
+### Gitフロー（拡張版）
+
+本プロジェクトでは、以下のGitフロー（GitHubフローの拡張版）を採用します：
+
+#### メインブランチ
+- **main**: 常に本番環境にデプロイ可能な状態を維持する安定ブランチ
+- **develop**: 開発環境の最新コード（必要に応じて作成）
+
+#### 機能開発ブランチ
+- **feature/[機能名]**: 新機能開発用（例: `feature/timer-ui`）
+  - mainから分岐し、完成後はmainにマージ
+  - 命名規則: `feature/簡潔な機能名`
+
+#### バグ修正ブランチ
+- **fix/[issue番号]**: バグ修正用（例: `fix/123-notification-crash`）
+  - mainから分岐し、修正後はmainにマージ
+  - 命名規則: `fix/issue番号-簡潔な説明`
+
+#### リファクタリングブランチ
+- **refactor/[対象]**: コード改善用（例: `refactor/timer-hooks`）
+  - mainから分岐し、改善後はmainにマージ
+  - 命名規則: `refactor/対象コンポーネント名`
+
+#### ドキュメントブランチ
+- **docs/[文書名]**: ドキュメント更新用（例: `docs/api-reference`）
+  - 命名規則: `docs/更新内容`
+
+### ブランチ運用の実装手順
+
+#### 開発ブランチの作成（必要な場合）
+```bash
+# mainから開発用developブランチを作成
+git checkout main
+git checkout -b develop
+git push -u origin develop
+```
+
+#### 機能開発の流れ
+```bash
+# 1. 適切なブランチを作成（例: feature/timer）
+git checkout main  # または develop（存在する場合）
+git pull origin main
+git checkout -b feature/timer
+
+# 2. 開発作業とコミット
+git add <変更したファイル>
+git commit -m "[feat] タイマー基本機能の実装"
+
+# 3. リモートにプッシュ
+git push -u origin feature/timer
+
+# 4. 開発完了後、最新のmainを取り込み
+git checkout main
+git pull origin main
+git checkout feature/timer
+git merge main
+# （コンフリクトがあれば解決）
+
+# 5. mainにマージ
+git checkout main
+git merge feature/timer
+git push origin main
+
+# 6. 不要になったブランチを削除
+git branch -d feature/timer
+git push origin --delete feature/timer
+```
+
+## ブランチ命名ルール詳細
+
+- **明確で簡潔な名前**: 作業内容が一目でわかる名前を使用
+- **小文字とハイフン**: `feature/user-authentication`（スペースや大文字は使用しない）
+- **プレフィックスの一貫性**: 決められたプレフィックス（feature/、fix/、refactor/、docs/）を使用
+- **機能ごとに分ける**: 複数の機能を一つのブランチで実装しない
+
+## 開発ワークフロー
+
+1. **最新のmainから作業ブランチを作成**
+   ```bash
+   git checkout main
+   git pull origin main
+   git checkout -b feature/新機能名
+   ```
+
+2. **小さな単位で頻繁にコミット**
+   ```bash
+   # ファイルの変更後
+   git add <変更したファイル>
+   git commit -m "[feat] ○○機能の実装"
+   ```
+
+3. **定期的にリモートへバックアップ**
+   ```bash
+   git push origin feature/新機能名
+   ```
+
+4. **作業完了後、mainへのマージ**
+   ```bash
+   git checkout main
+   git pull origin main
+   git merge feature/新機能名
+   git push origin main
+   ```
+
+## 注意事項
+
+- ビルドやテストが通らないコードはコミットしない
+- 1つのコミットで複数の独立した変更を含めない
+- 機密情報（APIキー、パスワードなど）をコミットしない
+- `git add .` は変更内容をよく確認してから使用する
+- mainブランチに直接コミットしないようにする
+
+## コンフリクト解決
+
+```bash
+# mainブランチの変更を取り込む
+git checkout main
+git pull origin main
+git checkout feature/新機能名
+git merge main
+
+# コンフリクトを解決したら
+git add <コンフリクトを解決したファイル>
+git commit -m "[chore] mainとのコンフリクトを解決"
+```
+
+## 便利なGitコマンド
+
+- **変更状態の確認**: `git status`
+- **変更差分の確認**: `git diff`
+- **コミット履歴の確認**: `git log --oneline --graph`
+- **直前のコミットの修正**: `git commit --amend`
+- **作業の一時退避**: `git stash`
+- **退避した作業の復元**: `git stash pop`
+
+## Wikiリポジトリの注意点
+
+Wikiは独立したGitリポジトリとして管理されており、デフォルトブランチ名が異なります：
+
+- メインリポジトリでは **main** ブランチを使用
+- Wikiリポジトリでは **master** ブランチを使用
+
+```bash
+# Wikiリポジトリのクローン
+git clone https://github.com/horihorikeitaa/PomofocusGuardApp.wiki.git .wiki
+
+# Wikiの変更をプッシュ（masterブランチ名に注意）
+cd .wiki
+git push origin master
+```
